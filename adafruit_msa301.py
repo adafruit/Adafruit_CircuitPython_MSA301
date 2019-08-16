@@ -148,6 +148,7 @@ class MSA301:
             bottom_byte = (raw_data >>(8*shift) & 0xFF)
             acc_bytes.append(bottom_byte)
 
+        # unpack three LE, signed shorts
         x, y, z = struct.unpack_from("<hhh", acc_bytes)
         
         current_range = self._range
