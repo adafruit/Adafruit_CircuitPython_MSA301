@@ -142,22 +142,14 @@ class MSA301:
         # read the 6 bytes of acceleration data
         # zh, zl, yh, yl, xh, xl
         raw_data = self._xyz_raw
-        acc_bytes = []
+        acc_bytes = bytearray()
         # shift out bytes, reversing the order
         for shift in range(6):
             bottom_byte = (raw_data >>(8*shift) & 0xFF)
             acc_bytes.append(bottom_byte)
 
-        # make (L, H) byte arrays
-        xba = bytearray(acc_bytes[0:2])
-        yba = bytearray(acc_bytes[2:4])
-        zba = bytearray(acc_bytes[4:6])
-
-        # unpack as a LE signed short
-        x = struct.unpack_from("<h", xba)[0]
-        y = struct.unpack_from("<h", yba)[0]
-        z = struct.unpack_from("<h", zba)[0]
-
+        x, y, z = struct.unpack_from("<hhh", acc_bytes)
+        
         current_range = self._range
         scale = 1.0
         if (current_range == 3):
