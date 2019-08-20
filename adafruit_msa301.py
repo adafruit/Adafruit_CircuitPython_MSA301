@@ -190,12 +190,14 @@ class MSA301:
         if self._part_id != 0x13:
             raise AttributeError("Cannot find a MSA301")
 
-        self._enable_all_axes()
+
+        self._disable_x = self._disable_y = self._disable_z = False
         self.power_mode = Mode.NORMAL
         self.data_rate = DataRate.RATE_500_HZ
         self.bandwidth = BandWidth.WIDTH_250_HZ
         self.range = Range.RANGE_4_G
         self.resolution = Resolution.RESOLUTION_14_BIT
+
 
 
     _disable_x = RWBit(_MSA301_REG_ODR, 7)
@@ -246,6 +248,3 @@ class MSA301:
         z_acc = ((z>>2) / scale) * _STANDARD_GRAVITY
 
         return (x_acc, y_acc, z_acc)
-
-    def _enable_all_axes(self):
-        self._disable_x = self._disable_y = self._disable_z = False
