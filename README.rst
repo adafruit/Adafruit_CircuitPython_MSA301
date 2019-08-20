@@ -30,12 +30,6 @@ This is easily achieved by downloading
 
 Installing from PyPI
 =====================
-.. note:: This library is not available on PyPI yet. Install documentation is included
-   as a standard element. Stay tuned for PyPI availability!
-
-.. todo:: Remove the above note if PyPI version is/will be available at time of release.
-   If the library is not planned for PyPI, remove the entire 'Installing from PyPI' section.
-
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally `from
 PyPI <https://pypi.org/project/adafruit-circuitpython-msa301/>`_. To install for current user:
 
@@ -61,7 +55,18 @@ To install in a virtual environment in your current project:
 Usage Example
 =============
 
-.. todo:: Add a quick, simple example. It and other examples should live in the examples folder and be included in docs/examples.rst.
+.. code-block: python3
+    import time
+    import board
+    import adafruit_msa301
+    import busio
+
+    i2c = busio.I2C(board.SCL, board.SDA)
+
+    msa = adafruit_msa301.MSA301(i2c)
+    while True:
+        print("%f %f %f"%msa.acceleration)
+        time.sleep(0.125)
 
 Contributing
 ============

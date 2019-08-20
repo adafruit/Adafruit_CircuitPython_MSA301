@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit__MSA301`
+`MSA301`
 ================================================================================
 
-CircuitPython library for the _MSA301 Accelerometer
+CircuitPython library for the MSA301 Accelerometer
 
 
 * Author(s): Bryan Siepert
@@ -33,29 +33,23 @@ Implementation Notes
 
 **Hardware:**
 
-.. todo:: Add links to any specific hardware product page(s), or category page(s). Use unordered list & hyperlink rST
-   inline format: "* `Link Text <url>`_"
+* Adafruit MSA301 Breakout https://www.adafruit.com/product/4344
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
   https://github.com/adafruit/circuitpython/releases
 
-.. todo:: Uncomment or remove the Bus Device and/or the Register library dependencies based on the library's use of either.
-
-# * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-# * Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
+* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+* Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
 """
 
-# imports
-
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython__MSA301.git"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MSA301.git"
 
-from time import sleep
 import struct
 from micropython import const
-from adafruit_register.i2c_struct import UnaryStruct, ROUnaryStruct
+from adafruit_register.i2c_struct import ROUnaryStruct
 from adafruit_register.i2c_bit import RWBit
 from adafruit_register.i2c_bits import RWBits, ROBits
 import adafruit_bus_device.i2c_device as i2cdevice
@@ -81,64 +75,148 @@ _MSA301_REG_INTMAP1 = const(0x1A)
 _MSA301_REG_TAPDUR = const(0x2A)
 _MSA301_REG_TAPTH = const(0x2B)
 
+
+_STANDARD_GRAVITY = 9.806
+class Mode: # pylint: disable=too-few-public-methods
+    """An enum-like class representing the different modes that the MSA301 can
+    use. The values can be referenced like ``Mode.NORMAL`` or ``Mode.SUSPEND``
+    Possible values are
+
+    - ``Mode.NORMAL``
+    - ``Mode.LOW_POWER``
+    - ``Mode.SUSPEND``
+    """
+    # pylint: disable=invalid-name
+    NORMAL = 0b00
+    LOWPOWER = 0b01
+    SUSPEND = 0b010
+
+class DataRate: # pylint: disable=too-few-public-methods
+    """An enum-like class representing the different data rates that the MSA301 can
+    use. The values can be referenced like ``DataRate.RATE_1_HZ`` or ``DataRate.RATE_1000_HZ``
+    Possible values are
+
+    - ``DataRate.RATE_1_HZ``
+    - ``DataRate.RATE_1_95_HZ``
+    - ``DataRate.RATE_3_9_HZ``
+    - ``DataRate.RATE_7_81_HZ``
+    - ``DataRate.RATE_15_63_HZ``
+    - ``DataRate.RATE_31_25_HZ``
+    - ``DataRate.RATE_62_5_HZ``
+    - ``DataRate.RATE_125_HZ``
+    - ``DataRate.RATE_250_HZ``
+    - ``DataRate.RATE_500_HZ``
+    - ``DataRate.RATE_1000_HZ``
+    """
+    RATE_1_HZ = 0b0000     # 1 Hz
+    RATE_1_95_HZ = 0b0001  # 1.95 Hz
+    RATE_3_9_HZ = 0b0010   # 3.9 Hz
+    RATE_7_81_HZ = 0b0011  # 7.81 Hz
+    RATE_15_63_HZ = 0b0100 # 15.63 Hz
+    RATE_31_25_HZ = 0b0101 # 31.25 Hz
+    RATE_62_5_HZ = 0b0110  # 62.5 Hz
+    RATE_125_HZ = 0b0111   # 125 Hz
+    RATE_250_HZ = 0b1000   # 250 Hz
+    RATE_500_HZ = 0b1001   # 500 Hz
+    RATE_1000_HZ = 0b1010  # 1000 Hz
+
+class BandWidth: # pylint: disable=too-few-public-methods
+    """An enum-like class representing the different bandwidths that the MSA301 can
+    use. The values can be referenced like ``BandWidth.WIDTH_1_HZ`` or ``BandWidth.RATE_500_HZ``
+    Possible values are
+
+    - ``BandWidth.RATE_1_HZ``
+    - ``BandWidth.RATE_1_95_HZ``
+    - ``BandWidth.RATE_3_9_HZ``
+    - ``BandWidth.RATE_7_81_HZ``
+    - ``BandWidth.RATE_15_63_HZ``
+    - ``BandWidth.RATE_31_25_HZ``
+    - ``BandWidth.RATE_62_5_HZ``
+    - ``BandWidth.RATE_125_HZ``
+    - ``BandWidth.RATE_250_HZ``
+    - ``BandWidth.RATE_500_HZ``
+    - ``BandWidth.RATE_1000_HZ``
+    """
+    WIDTH_1_95_HZ = 0b0000  # 1.95 Hz
+    WIDTH_3_9_HZ = 0b0011   # 3.9 Hz
+    WIDTH_7_81_HZ = 0b0100  # 7.81 Hz
+    WIDTH_15_63_HZ = 0b0101 # 15.63 Hz
+    WIDTH_31_25_HZ = 0b0110 # 31.25 Hz
+    WIDTH_62_5_HZ = 0b0111  # 62.5 Hz
+    WIDTH_125_HZ = 0b1000   # 125 Hz
+    WIDTH_250_HZ = 0b1001   # 250 Hz
+    WIDTH_500_HZ = 0b1010   # 500 Hz
+
+class Range: # pylint: disable=too-few-public-methods
+    """An enum-like class representing the different acceleration measurement ranges that the
+    MSA301 can use. The values can be referenced like ``Range.RANGE_2_G`` or ``Range.RANGE_16_G``
+    Possible values are
+
+    - ``Range.RANGE_2_G``
+    - ``Range.RANGE_4_G``
+    - ``Range.RANGE_8_G``
+    - ``Range.RANGE_16_G``
+    """
+    RANGE_2_G = 0b00  # +/- 2g (default value)
+    RANGE_4_G = 0b01  # +/- 4g
+    RANGE_8_G = 0b10  # +/- 8g
+    RANGE_16_G = 0b11 # +/- 16g
+
+class Resolution: # pylint: disable=too-few-public-methods
+    """An enum-like class representing the different measurement ranges that the MSA301 can
+    use. The values can be referenced like ``Range.RANGE_2_G`` or ``Range.RANGE_16_G``
+    Possible values are
+
+    - ``Resolution.RESOLUTION_14_BIT``
+    - ``Resolution.RESOLUTION_12_BIT``
+    - ``Resolution.RESOLUTION_10_BIT``
+    - ``Resolution.RESOLUTION_8_BIT``
+    """
+    RESOLUTION_14_BIT = 0b00
+    RESOLUTION_12_BIT = 0b01
+    RESOLUTION_10_BIT = 0b10
+    RESOLUTION_8_BIT = 0b11
+
 class MSA301:
     """Driver for the MSA301 Accelerometer.
 
         :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
-        :param address: The I2C device address for the sensor. Default is ``0x26``.
     """
-    _part_id = ROUnaryStruct(_MSA301_REG_PARTID,"<B")
+    _part_id = ROUnaryStruct(_MSA301_REG_PARTID, "<B")
 
-    def __init__(self, i2c_bus, address=_MSA301_I2CADDR_DEFAULT):
-        self.i2c_device = i2cdevice.I2CDevice(i2c_bus, address)
+    def __init__(self, i2c_bus):
+        self.i2c_device = i2cdevice.I2CDevice(i2c_bus, _MSA301_I2CADDR_DEFAULT)
 
-        
-        if (self._part_id != 0x13):
+        if self._part_id != 0x13:
             raise AttributeError("Cannot find a MSA301")
 
-        self.enable_all_axes()
-        # // enable all axes
-        # enableAxes(true, true, true);
-        # // normal mode
-        # setPowerMode(MSA301_NORMALMODE);
-        self._power_mode = 0
-        # // 500Hz rate
-        # setDataRate(MSA301_DATARATE_500_HZ);
-        self._data_rate = 0b1001
-        # // 250Hz bw
-        # setBandwidth(MSA301_BANDWIDTH_250_HZ);
-        self._bandwidth = 0b1001
-        # setRange(MSA301_RANGE_4_G);
-        self._range = 0b01
-        # setResolution(MSA301_RESOLUTION_14);
-        self._resolution = 0b00
+        self._enable_all_axes()
+        self.power_mode = Mode.NORMAL
+        self.data_rate = DataRate.RATE_500_HZ
+        self.bandwidth = BandWidth.WIDTH_250_HZ
+        self.range = Range.RANGE_4_G
+        self.resolution = Resolution.RESOLUTION_14_BIT
 
-    # Register Reference:   
-    # RWBits((num_bits, register_address, lowest_bit, register_width=1, lsb_first=True)
-    # ROBit( register_address, bit, register_width=1, lsb_first=True)
-    # UnaryStruct( register_address, struct_format)
-    # https://docs.python.org/3/library/struct.html
 
     _disable_x = RWBit(_MSA301_REG_ODR, 7)
     _disable_y = RWBit(_MSA301_REG_ODR, 6)
     _disable_z = RWBit(_MSA301_REG_ODR, 5)
 
-    _power_mode = RWBits(2, _MSA301_REG_POWERMODE, 6)
-
     _xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
 
-    _power_mode = RWBits(2, _MSA301_REG_POWERMODE, 6)
+    power_mode = RWBits(2, _MSA301_REG_POWERMODE, 6)
 
-    _bandwidth = RWBits(4, _MSA301_REG_POWERMODE, 1)
+    bandwidth = RWBits(4, _MSA301_REG_POWERMODE, 1)
 
-    _data_rate = RWBits(4, _MSA301_REG_ODR, 0)
+    data_rate = RWBits(4, _MSA301_REG_ODR, 0)
 
-    _range = RWBits(2, _MSA301_REG_RESRANGE, 0)
+    range = RWBits(2, _MSA301_REG_RESRANGE, 0)
 
-    _resolution = RWBits(2, _MSA301_REG_RESRANGE, 2)
+    resolution = RWBits(2, _MSA301_REG_RESRANGE, 2)
 
     @property
     def acceleration(self):
+        """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         # read the 6 bytes of acceleration data
         # zh, zl, yh, yl, xh, xl
         raw_data = self._xyz_raw
@@ -150,24 +228,24 @@ class MSA301:
 
         # unpack three LE, signed shorts
         x, y, z = struct.unpack_from("<hhh", acc_bytes)
-        
-        current_range = self._range
+
+        current_range = self.range
         scale = 1.0
-        if (current_range == 3):
+        if current_range == 3:
             scale = 512.0
-        if (current_range == 2):
+        if current_range == 2:
             scale = 1024.0
-        if (current_range == 1):
+        if current_range == 1:
             scale = 2048.0
-        if (current_range == 0):
+        if current_range == 0:
             scale = 4096.0
 
         # shift down to the actual 14 bits and scale based on the range
-        x_g = (x>>2) / scale
-        y_g = (y>>2) / scale
-        z_g = (z>>2) / scale
+        x_acc = ((x>>2) / scale) * _STANDARD_GRAVITY
+        y_acc = ((y>>2) / scale) * _STANDARD_GRAVITY
+        z_acc = ((z>>2) / scale) * _STANDARD_GRAVITY
 
-        return (x_g, y_g, z_g)
+        return (x_acc, y_acc, z_acc)
 
-    def enable_all_axes(self):
-        _disable_x = _disable_y = _disable_z = False
+    def _enable_all_axes(self):
+        self._disable_x = self._disable_y = self._disable_z = False
