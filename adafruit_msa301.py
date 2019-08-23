@@ -48,11 +48,13 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MSA301.git"
 
 import struct
+
 from micropython import const
 from adafruit_register.i2c_struct import ROUnaryStruct
 from adafruit_register.i2c_bit import RWBit
 from adafruit_register.i2c_bits import RWBits, ROBits
 import adafruit_bus_device.i2c_device as i2cdevice
+
 _MSA301_I2CADDR_DEFAULT = const(0x26)
 
 _MSA301_REG_PARTID = const(0x01)
@@ -64,7 +66,6 @@ _MSA301_REG_OUT_Z_L = const(0x06)
 _MSA301_REG_OUT_Z_H = const(0x07)
 _MSA301_REG_MOTIONINT = const(0x09)
 _MSA301_REG_DATAINT = const(0x0A)
-_MSA301_REG_CLICKSTATUS = const(0x0B)
 _MSA301_REG_RESRANGE = const(0x0F)
 _MSA301_REG_ODR = const(0x10)
 _MSA301_REG_POWERMODE = const(0x11)
@@ -177,7 +178,20 @@ class Resolution: # pylint: disable=too-few-public-methods
     RESOLUTION_10_BIT = 0b10
     RESOLUTION_8_BIT = 0b11
 
-class MSA301:
+class TapDuration: #pylint: disable=too-few-public-methods,too-many-instance-attributes
+    """An enum-like class representing the options for the "double_tap_window" parameter of
+    `enable_tap_detection`"""
+    DURATION_50_MS = 0b000 #< 50 millis
+    DURATION_100_MS = 0b001 #< 100 millis
+    DURATION_150_MS = 0b010 #< 150 millis
+    DURATION_200_MS = 0b011 #< 200 millis
+    DURATION_250_MS = 0b100 #< 250 millis
+    DURATION_375_MS = 0b101 #< 375 millis
+    DURATION_500_MS = 0b110 #< 500 millis
+    DURATION_700_MS = 0b111 #< 50 millis700 millis
+
+
+class MSA301:#pylint: disable=too-many-instance-attributes
     """Driver for the MSA301 Accelerometer.
 
         :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
@@ -197,8 +211,7 @@ class MSA301:
         self.bandwidth = BandWidth.WIDTH_250_HZ
         self.range = Range.RANGE_4_G
         self.resolution = Resolution.RESOLUTION_14_BIT
-
-
+        self._tap_count = 0
 
     _disable_x = RWBit(_MSA301_REG_ODR, 7)
     _disable_y = RWBit(_MSA301_REG_ODR, 6)
@@ -206,14 +219,23 @@ class MSA301:
 
     _xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
 
+    # tap INT enable and status
+    _single_tap_int_en = RWBit(_MSA301_REG_INTSET0, 5)
+    _double_tap_int_en = RWBit(_MSA301_REG_INTSET0, 4)
+    _motion_int_status = ROUnaryStruct(_MSA301_REG_MOTIONINT, "B")
+
+    # tap interrupt knobs
+    _tap_quiet = RWBit(_MSA301_REG_TAPDUR, 7)
+    _tap_shock = RWBit(_MSA301_REG_TAPDUR, 6)
+    _tap_duration = RWBits(3, _MSA301_REG_TAPDUR, 0)
+    _tap_threshold = RWBits(5, _MSA301_REG_TAPTH, 0)
+    reg_tapdur = ROUnaryStruct(_MSA301_REG_TAPDUR, "B")
+
+    # general settings knobs
     power_mode = RWBits(2, _MSA301_REG_POWERMODE, 6)
-
     bandwidth = RWBits(4, _MSA301_REG_POWERMODE, 1)
-
     data_rate = RWBits(4, _MSA301_REG_ODR, 0)
-
     range = RWBits(2, _MSA301_REG_RESRANGE, 0)
-
     resolution = RWBits(2, _MSA301_REG_RESRANGE, 2)
 
     @property
@@ -248,3 +270,74 @@ class MSA301:
         z_acc = ((z>>2) / scale) * _STANDARD_GRAVITY
 
         return (x_acc, y_acc, z_acc)
+
+    def enable_tap_detection(self, *,
+                             tap_count=1,
+                             threshold=25,
+                             long_initial_window=True,
+                             long_quiet_window=True,
+                             double_tap_window=TapDuration.DURATION_250_MS):
+        """
+        Enables tap detection with configurable parameters.
+
+        :param int tap_count: 1 to detect only single taps, or 2 to detect only double taps.\
+        default is 1
+
+        :param int threshold: A threshold for the tap detection.\
+        The higher the value the less sensitive the detection. This changes based on the\
+        accelerometer range. Default is 25.
+
+        :param int long_initial_window: This sets the length of the window of time where a\
+        spike in acceleration must occour in before being followed by a quiet period.\
+        `True` (default) sets the value to 70ms, False to 50ms. Default is `True`
+
+        :param int long_quiet_window: The length of the "quiet" period after an acceleration\
+        spike where no more spikes can occour for a tap to be registered.\
+        `True` (default) sets the value to 30ms, False to 20ms. Default is `True`.
+
+        :param int double_tap_window: The length of time after an initial tap is registered\
+        in which a second tap must be detected to count as a double tap. Setting a lower\
+        value will require a faster double tap. The value must be a\
+        ``TapDuration``. Default is ``TapDuration.DURATION_250_MS``.
+
+        If you wish to set them yourself rather than using the defaults,
+        you must use keyword arguments::
+
+            msa.enable_tap_detection(tap_count=2,
+                                     threshold=25,
+                                     double_tap_window=TapDuration.DURATION_700_MS)
+
+        """
+        self._tap_shock = not long_initial_window
+        self._tap_quiet = long_quiet_window
+        self._tap_threshold = threshold
+        self._tap_count = tap_count
+
+        if double_tap_window > 7 or double_tap_window < 0:
+            raise ValueError("double_tap_window must be a TapDuration")
+        if tap_count == 1:
+            self._single_tap_int_en = True
+        elif tap_count == 2:
+            self._tap_duration = double_tap_window
+            self._double_tap_int_en = True
+        else:
+            raise ValueError("tap must be 1 for single tap, or 2 for double tap")
+
+    @property
+    def tapped(self):
+        """`True` if a single or double tap was detected, depending on the value of the\
+           ``tap_count`` argument passed to ``enable_tap_detection``"""
+        if self._tap_count == 0:
+            return False
+
+        motion_int_status = self._motion_int_status
+
+        if motion_int_status == 0: # no interrupts triggered
+            return False
+
+        if self._tap_count == 1 and motion_int_status & 1<<5:
+            return True
+        if self._tap_count == 2 and motion_int_status & 1<<4:
+            return True
+
+        return False
