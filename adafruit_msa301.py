@@ -78,7 +78,9 @@ _MSA301_REG_TAPTH = const(0x2B)
 
 
 _STANDARD_GRAVITY = 9.806
-class Mode: # pylint: disable=too-few-public-methods
+
+
+class Mode:  # pylint: disable=too-few-public-methods
     """An enum-like class representing the different modes that the MSA301 can
     use. The values can be referenced like ``Mode.NORMAL`` or ``Mode.SUSPEND``
     Possible values are
@@ -87,12 +89,14 @@ class Mode: # pylint: disable=too-few-public-methods
     - ``Mode.LOW_POWER``
     - ``Mode.SUSPEND``
     """
+
     # pylint: disable=invalid-name
     NORMAL = 0b00
     LOWPOWER = 0b01
     SUSPEND = 0b010
 
-class DataRate: # pylint: disable=too-few-public-methods
+
+class DataRate:  # pylint: disable=too-few-public-methods
     """An enum-like class representing the different data rates that the MSA301 can
     use. The values can be referenced like ``DataRate.RATE_1_HZ`` or ``DataRate.RATE_1000_HZ``
     Possible values are
@@ -109,19 +113,21 @@ class DataRate: # pylint: disable=too-few-public-methods
     - ``DataRate.RATE_500_HZ``
     - ``DataRate.RATE_1000_HZ``
     """
-    RATE_1_HZ = 0b0000     # 1 Hz
+
+    RATE_1_HZ = 0b0000  # 1 Hz
     RATE_1_95_HZ = 0b0001  # 1.95 Hz
-    RATE_3_9_HZ = 0b0010   # 3.9 Hz
+    RATE_3_9_HZ = 0b0010  # 3.9 Hz
     RATE_7_81_HZ = 0b0011  # 7.81 Hz
-    RATE_15_63_HZ = 0b0100 # 15.63 Hz
-    RATE_31_25_HZ = 0b0101 # 31.25 Hz
+    RATE_15_63_HZ = 0b0100  # 15.63 Hz
+    RATE_31_25_HZ = 0b0101  # 31.25 Hz
     RATE_62_5_HZ = 0b0110  # 62.5 Hz
-    RATE_125_HZ = 0b0111   # 125 Hz
-    RATE_250_HZ = 0b1000   # 250 Hz
-    RATE_500_HZ = 0b1001   # 500 Hz
+    RATE_125_HZ = 0b0111  # 125 Hz
+    RATE_250_HZ = 0b1000  # 250 Hz
+    RATE_500_HZ = 0b1001  # 500 Hz
     RATE_1000_HZ = 0b1010  # 1000 Hz
 
-class BandWidth: # pylint: disable=too-few-public-methods
+
+class BandWidth:  # pylint: disable=too-few-public-methods
     """An enum-like class representing the different bandwidths that the MSA301 can
     use. The values can be referenced like ``BandWidth.WIDTH_1_HZ`` or ``BandWidth.RATE_500_HZ``
     Possible values are
@@ -138,17 +144,19 @@ class BandWidth: # pylint: disable=too-few-public-methods
     - ``BandWidth.RATE_500_HZ``
     - ``BandWidth.RATE_1000_HZ``
     """
-    WIDTH_1_95_HZ = 0b0000  # 1.95 Hz
-    WIDTH_3_9_HZ = 0b0011   # 3.9 Hz
-    WIDTH_7_81_HZ = 0b0100  # 7.81 Hz
-    WIDTH_15_63_HZ = 0b0101 # 15.63 Hz
-    WIDTH_31_25_HZ = 0b0110 # 31.25 Hz
-    WIDTH_62_5_HZ = 0b0111  # 62.5 Hz
-    WIDTH_125_HZ = 0b1000   # 125 Hz
-    WIDTH_250_HZ = 0b1001   # 250 Hz
-    WIDTH_500_HZ = 0b1010   # 500 Hz
 
-class Range: # pylint: disable=too-few-public-methods
+    WIDTH_1_95_HZ = 0b0000  # 1.95 Hz
+    WIDTH_3_9_HZ = 0b0011  # 3.9 Hz
+    WIDTH_7_81_HZ = 0b0100  # 7.81 Hz
+    WIDTH_15_63_HZ = 0b0101  # 15.63 Hz
+    WIDTH_31_25_HZ = 0b0110  # 31.25 Hz
+    WIDTH_62_5_HZ = 0b0111  # 62.5 Hz
+    WIDTH_125_HZ = 0b1000  # 125 Hz
+    WIDTH_250_HZ = 0b1001  # 250 Hz
+    WIDTH_500_HZ = 0b1010  # 500 Hz
+
+
+class Range:  # pylint: disable=too-few-public-methods
     """An enum-like class representing the different acceleration measurement ranges that the
     MSA301 can use. The values can be referenced like ``Range.RANGE_2_G`` or ``Range.RANGE_16_G``
     Possible values are
@@ -158,12 +166,14 @@ class Range: # pylint: disable=too-few-public-methods
     - ``Range.RANGE_8_G``
     - ``Range.RANGE_16_G``
     """
+
     RANGE_2_G = 0b00  # +/- 2g (default value)
     RANGE_4_G = 0b01  # +/- 4g
     RANGE_8_G = 0b10  # +/- 8g
-    RANGE_16_G = 0b11 # +/- 16g
+    RANGE_16_G = 0b11  # +/- 16g
 
-class Resolution: # pylint: disable=too-few-public-methods
+
+class Resolution:  # pylint: disable=too-few-public-methods
     """An enum-like class representing the different measurement ranges that the MSA301 can
     use. The values can be referenced like ``Range.RANGE_2_G`` or ``Range.RANGE_16_G``
     Possible values are
@@ -173,29 +183,33 @@ class Resolution: # pylint: disable=too-few-public-methods
     - ``Resolution.RESOLUTION_10_BIT``
     - ``Resolution.RESOLUTION_8_BIT``
     """
+
     RESOLUTION_14_BIT = 0b00
     RESOLUTION_12_BIT = 0b01
     RESOLUTION_10_BIT = 0b10
     RESOLUTION_8_BIT = 0b11
 
-class TapDuration: #pylint: disable=too-few-public-methods,too-many-instance-attributes
+
+class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """An enum-like class representing the options for the "double_tap_window" parameter of
     `enable_tap_detection`"""
-    DURATION_50_MS = 0b000 #< 50 millis
-    DURATION_100_MS = 0b001 #< 100 millis
-    DURATION_150_MS = 0b010 #< 150 millis
-    DURATION_200_MS = 0b011 #< 200 millis
-    DURATION_250_MS = 0b100 #< 250 millis
-    DURATION_375_MS = 0b101 #< 375 millis
-    DURATION_500_MS = 0b110 #< 500 millis
-    DURATION_700_MS = 0b111 #< 50 millis700 millis
+
+    DURATION_50_MS = 0b000  # < 50 millis
+    DURATION_100_MS = 0b001  # < 100 millis
+    DURATION_150_MS = 0b010  # < 150 millis
+    DURATION_200_MS = 0b011  # < 200 millis
+    DURATION_250_MS = 0b100  # < 250 millis
+    DURATION_375_MS = 0b101  # < 375 millis
+    DURATION_500_MS = 0b110  # < 500 millis
+    DURATION_700_MS = 0b111  # < 50 millis700 millis
 
 
-class MSA301:#pylint: disable=too-many-instance-attributes
+class MSA301:  # pylint: disable=too-many-instance-attributes
     """Driver for the MSA301 Accelerometer.
 
         :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
     """
+
     _part_id = ROUnaryStruct(_MSA301_REG_PARTID, "<B")
 
     def __init__(self, i2c_bus):
@@ -203,7 +217,6 @@ class MSA301:#pylint: disable=too-many-instance-attributes
 
         if self._part_id != 0x13:
             raise AttributeError("Cannot find a MSA301")
-
 
         self._disable_x = self._disable_y = self._disable_z = False
         self.power_mode = Mode.NORMAL
@@ -247,7 +260,7 @@ class MSA301:#pylint: disable=too-many-instance-attributes
         acc_bytes = bytearray()
         # shift out bytes, reversing the order
         for shift in range(6):
-            bottom_byte = (raw_data >>(8*shift) & 0xFF)
+            bottom_byte = raw_data >> (8 * shift) & 0xFF
             acc_bytes.append(bottom_byte)
 
         # unpack three LE, signed shorts
@@ -265,18 +278,21 @@ class MSA301:#pylint: disable=too-many-instance-attributes
             scale = 4096.0
 
         # shift down to the actual 14 bits and scale based on the range
-        x_acc = ((x>>2) / scale) * _STANDARD_GRAVITY
-        y_acc = ((y>>2) / scale) * _STANDARD_GRAVITY
-        z_acc = ((z>>2) / scale) * _STANDARD_GRAVITY
+        x_acc = ((x >> 2) / scale) * _STANDARD_GRAVITY
+        y_acc = ((y >> 2) / scale) * _STANDARD_GRAVITY
+        z_acc = ((z >> 2) / scale) * _STANDARD_GRAVITY
 
         return (x_acc, y_acc, z_acc)
 
-    def enable_tap_detection(self, *,
-                             tap_count=1,
-                             threshold=25,
-                             long_initial_window=True,
-                             long_quiet_window=True,
-                             double_tap_window=TapDuration.DURATION_250_MS):
+    def enable_tap_detection(  # pylint: disable=bad-continuation
+        self,
+        *,
+        tap_count=1,
+        threshold=25,
+        long_initial_window=True,
+        long_quiet_window=True,
+        double_tap_window=TapDuration.DURATION_250_MS
+    ):
         """
         Enables tap detection with configurable parameters.
 
@@ -332,12 +348,12 @@ class MSA301:#pylint: disable=too-many-instance-attributes
 
         motion_int_status = self._motion_int_status
 
-        if motion_int_status == 0: # no interrupts triggered
+        if motion_int_status == 0:  # no interrupts triggered
             return False
 
-        if self._tap_count == 1 and motion_int_status & 1<<5:
+        if self._tap_count == 1 and motion_int_status & 1 << 5:
             return True
-        if self._tap_count == 2 and motion_int_status & 1<<4:
+        if self._tap_count == 2 and motion_int_status & 1 << 4:
             return True
 
         return False
