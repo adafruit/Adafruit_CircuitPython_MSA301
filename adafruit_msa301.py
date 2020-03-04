@@ -284,7 +284,7 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
 
         return (x_acc, y_acc, z_acc)
 
-    def enable_tap_detection(  # pylint: disable=bad-continuation
+    def enable_tap_detection(
         self,
         *,
         tap_count=1,
