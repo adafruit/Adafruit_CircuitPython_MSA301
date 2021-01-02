@@ -47,12 +47,10 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MSA301.git"
 
-import struct
-
 from micropython import const
-from adafruit_register.i2c_struct import ROUnaryStruct
+from adafruit_register.i2c_struct import Struct, ROUnaryStruct
 from adafruit_register.i2c_bit import RWBit
-from adafruit_register.i2c_bits import RWBits, ROBits
+from adafruit_register.i2c_bits import RWBits
 import adafruit_bus_device.i2c_device as i2cdevice
 
 _MSA301_I2CADDR_DEFAULT = const(0x26)
@@ -207,7 +205,7 @@ class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-a
 class MSA301:  # pylint: disable=too-many-instance-attributes
     """Driver for the MSA301 Accelerometer.
 
-        :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
+    :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
     """
 
     _part_id = ROUnaryStruct(_MSA301_REG_PARTID, "<B")
@@ -230,7 +228,8 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
     _disable_y = RWBit(_MSA301_REG_ODR, 6)
     _disable_z = RWBit(_MSA301_REG_ODR, 5)
 
-    _xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
+    # _xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
+    _xyz_raw = Struct(_MSA301_REG_OUT_X_L, "<hhh")
 
     # tap INT enable and status
     _single_tap_int_en = RWBit(_MSA301_REG_INTSET0, 5)
@@ -255,16 +254,6 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
     def acceleration(self):
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         # read the 6 bytes of acceleration data
-        # zh, zl, yh, yl, xh, xl
-        raw_data = self._xyz_raw
-        acc_bytes = bytearray()
-        # shift out bytes, reversing the order
-        for shift in range(6):
-            bottom_byte = raw_data >> (8 * shift) & 0xFF
-            acc_bytes.append(bottom_byte)
-
-        # unpack three LE, signed shorts
-        x, y, z = struct.unpack_from("<hhh", acc_bytes)
 
         current_range = self.range
         scale = 1.0
@@ -278,11 +267,9 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
             scale = 4096.0
 
         # shift down to the actual 14 bits and scale based on the range
-        x_acc = ((x >> 2) / scale) * _STANDARD_GRAVITY
-        y_acc = ((y >> 2) / scale) * _STANDARD_GRAVITY
-        z_acc = ((z >> 2) / scale) * _STANDARD_GRAVITY
+        x, y, z = [((i >> 2) / scale) * _STANDARD_GRAVITY for i in self._xyz_raw]
 
-        return (x_acc, y_acc, z_acc)
+        return (x, y, z)
 
     def enable_tap_detection(
         self,
