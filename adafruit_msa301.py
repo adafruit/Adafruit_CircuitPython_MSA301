@@ -207,7 +207,7 @@ class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-a
 class MSA301:  # pylint: disable=too-many-instance-attributes
     """Driver for the MSA301 Accelerometer.
 
-        :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
+    :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
     """
 
     _part_id = ROUnaryStruct(_MSA301_REG_PARTID, "<B")
@@ -230,7 +230,7 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
     _disable_y = RWBit(_MSA301_REG_ODR, 6)
     _disable_z = RWBit(_MSA301_REG_ODR, 5)
 
-    #_xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
+    # _xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
     _xyz_raw = Struct(_MSA301_REG_OUT_X_L, "<hhh")
 
     # tap INT enable and status
