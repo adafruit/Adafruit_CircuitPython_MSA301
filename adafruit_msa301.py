@@ -16,15 +16,17 @@ Implementation Notes
 
 **Hardware:**
 
-* Adafruit MSA301 Breakout https://www.adafruit.com/product/4344
+* Adafruit `MSA301 Triple Axis Accelerometer
+  <https://www.adafruit.com/product/4344>`_
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
-
-* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-* Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
+  https://circuitpython.org/downloads
+* Adafruit's Bus Device library:
+  https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+* Adafruit's Register library:
+  https://github.com/adafruit/Adafruit_CircuitPython_Register
 """
 
 __version__ = "0.0.0-auto.0"
@@ -63,12 +65,13 @@ _STANDARD_GRAVITY = 9.806
 
 class Mode:  # pylint: disable=too-few-public-methods
     """An enum-like class representing the different modes that the MSA301 can
-    use. The values can be referenced like ``Mode.NORMAL`` or ``Mode.SUSPEND``
+    use. The values can be referenced like :attr:`Mode.NORMAL` or :attr:`Mode.SUSPEND`
     Possible values are
 
-    - ``Mode.NORMAL``
-    - ``Mode.LOW_POWER``
-    - ``Mode.SUSPEND``
+    - :attr:`Mode.NORMAL`
+    - :attr:`Mode.LOW_POWER`
+    - :attr:`Mode.SUSPEND`
+
     """
 
     # pylint: disable=invalid-name
@@ -78,21 +81,24 @@ class Mode:  # pylint: disable=too-few-public-methods
 
 
 class DataRate:  # pylint: disable=too-few-public-methods
-    """An enum-like class representing the different data rates that the MSA301 can
-    use. The values can be referenced like ``DataRate.RATE_1_HZ`` or ``DataRate.RATE_1000_HZ``
+    """An enum-like class representing the different
+    data rates that the MSA301 can
+    use. The values can be referenced like
+    :attr:`DataRate.RATE_1_HZ` or :attr:`DataRate.RATE_1000_HZ`
     Possible values are
 
-    - ``DataRate.RATE_1_HZ``
-    - ``DataRate.RATE_1_95_HZ``
-    - ``DataRate.RATE_3_9_HZ``
-    - ``DataRate.RATE_7_81_HZ``
-    - ``DataRate.RATE_15_63_HZ``
-    - ``DataRate.RATE_31_25_HZ``
-    - ``DataRate.RATE_62_5_HZ``
-    - ``DataRate.RATE_125_HZ``
-    - ``DataRate.RATE_250_HZ``
-    - ``DataRate.RATE_500_HZ``
-    - ``DataRate.RATE_1000_HZ``
+    - :attr:`DataRate.RATE_1_HZ`
+    - :attr:`DataRate.RATE_1_95_HZ`
+    - :attr:`DataRate.RATE_3_9_HZ`
+    - :attr:`DataRate.RATE_7_81_HZ`
+    - :attr:`DataRate.RATE_15_63_HZ`
+    - :attr:`DataRate.RATE_31_25_HZ`
+    - :attr:`DataRate.RATE_62_5_HZ`
+    - :attr:`DataRate.RATE_125_HZ`
+    - :attr:`DataRate.RATE_250_HZ`
+    - :attr:`DataRate.RATE_500_HZ`
+    - :attr:`DataRate.RATE_1000_HZ`
+
     """
 
     RATE_1_HZ = 0b0000  # 1 Hz
@@ -109,21 +115,24 @@ class DataRate:  # pylint: disable=too-few-public-methods
 
 
 class BandWidth:  # pylint: disable=too-few-public-methods
-    """An enum-like class representing the different bandwidths that the MSA301 can
-    use. The values can be referenced like ``BandWidth.WIDTH_1_HZ`` or ``BandWidth.RATE_500_HZ``
+    """An enum-like class representing the different
+    bandwidths that the MSA301 can
+    use. The values can be referenced
+    like :attr:`BandWidth.WIDTH_1_HZ` or :attr:`BandWidth.RATE_500_HZ`
     Possible values are
 
-    - ``BandWidth.RATE_1_HZ``
-    - ``BandWidth.RATE_1_95_HZ``
-    - ``BandWidth.RATE_3_9_HZ``
-    - ``BandWidth.RATE_7_81_HZ``
-    - ``BandWidth.RATE_15_63_HZ``
-    - ``BandWidth.RATE_31_25_HZ``
-    - ``BandWidth.RATE_62_5_HZ``
-    - ``BandWidth.RATE_125_HZ``
-    - ``BandWidth.RATE_250_HZ``
-    - ``BandWidth.RATE_500_HZ``
-    - ``BandWidth.RATE_1000_HZ``
+    - :attr:`BandWidth.RATE_1_HZ`
+    - :attr:`BandWidth.RATE_1_95_HZ`
+    - :attr:`BandWidth.RATE_3_9_HZ`
+    - :attr:`BandWidth.RATE_7_81_HZ`
+    - :attr:`BandWidth.RATE_15_63_HZ`
+    - :attr:`BandWidth.RATE_31_25_HZ`
+    - :attr:`BandWidth.RATE_62_5_HZ`
+    - :attr:`BandWidth.RATE_125_HZ`
+    - :attr:`BandWidth.RATE_250_HZ`
+    - :attr:`BandWidth.RATE_500_HZ`
+    - :attr:`BandWidth.RATE_1000_HZ`
+
     """
 
     WIDTH_1_95_HZ = 0b0000  # 1.95 Hz
@@ -138,14 +147,17 @@ class BandWidth:  # pylint: disable=too-few-public-methods
 
 
 class Range:  # pylint: disable=too-few-public-methods
-    """An enum-like class representing the different acceleration measurement ranges that the
-    MSA301 can use. The values can be referenced like ``Range.RANGE_2_G`` or ``Range.RANGE_16_G``
+    """An enum-like class representing the different
+    acceleration measurement ranges that the
+    MSA301 can use. The values can be referenced like
+    :attr:`Range.RANGE_2_G` or :attr:`Range.RANGE_16_G`
     Possible values are
 
-    - ``Range.RANGE_2_G``
-    - ``Range.RANGE_4_G``
-    - ``Range.RANGE_8_G``
-    - ``Range.RANGE_16_G``
+    - :attr:`Range.RANGE_2_G`
+    - :attr:`Range.RANGE_4_G`
+    - :attr:`Range.RANGE_8_G`
+    - :attr:`Range.RANGE_16_G`
+
     """
 
     RANGE_2_G = 0b00  # +/- 2g (default value)
@@ -155,14 +167,17 @@ class Range:  # pylint: disable=too-few-public-methods
 
 
 class Resolution:  # pylint: disable=too-few-public-methods
-    """An enum-like class representing the different measurement ranges that the MSA301 can
-    use. The values can be referenced like ``Range.RANGE_2_G`` or ``Range.RANGE_16_G``
+    """An enum-like class representing the different
+    measurement ranges that the MSA301 can
+    use. The values can be referenced like
+    :attr:`Range.RANGE_2_G` or :attr:`Range.RANGE_16_G`
     Possible values are
 
-    - ``Resolution.RESOLUTION_14_BIT``
-    - ``Resolution.RESOLUTION_12_BIT``
-    - ``Resolution.RESOLUTION_10_BIT``
-    - ``Resolution.RESOLUTION_8_BIT``
+    - :attr:`Resolution.RESOLUTION_14_BIT`
+    - :attr:`Resolution.RESOLUTION_12_BIT`
+    - :attr:`Resolution.RESOLUTION_10_BIT`
+    - :attr:`Resolution.RESOLUTION_8_BIT`
+
     """
 
     RESOLUTION_14_BIT = 0b00
@@ -189,6 +204,31 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
     """Driver for the MSA301 Accelerometer.
 
     :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
+
+
+    **Quickstart: Importing and using the device**
+
+        Here is an example of using the :class:`MSA301` class.
+        First you will need to import the libraries to use the sensor
+
+        .. code-block:: python
+
+            import board
+            import adafruit_msa301
+
+        Once this is done you can define your `board.I2C` object and define your sensor object
+
+        .. code-block:: python
+
+            i2c = board.I2C()  # uses board.SCL and board.SDA
+            msa = adafruit_msa301.MSA301(i2c)
+
+        Now you have access to the :attr:`acceleration` attribute
+
+        .. code-block:: python
+
+            acc_x, acc_y, acc_z = msa.acceleration
+
     """
 
     _part_id = ROUnaryStruct(_MSA301_REG_PARTID, "<B")
@@ -235,7 +275,8 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
 
     @property
     def acceleration(self):
-        """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
+        """The x, y, z acceleration values returned in a
+        3-tuple and are in :math:`m / s ^ 2`"""
         # read the 6 bytes of acceleration data
 
         current_range = self.range
@@ -278,13 +319,13 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
         `True` (default) sets the value to 70ms, False to 50ms. Default is `True`
 
         :param int long_quiet_window: The length of the "quiet" period after an acceleration\
-        spike where no more spikes can occour for a tap to be registered.\
+        spike where no more spikes can occur for a tap to be registered.\
         `True` (default) sets the value to 30ms, False to 20ms. Default is `True`.
 
         :param int double_tap_window: The length of time after an initial tap is registered\
         in which a second tap must be detected to count as a double tap. Setting a lower\
         value will require a faster double tap. The value must be a\
-        ``TapDuration``. Default is ``TapDuration.DURATION_250_MS``.
+        ``TapDuration``. Default is :attr:`TapDuration.DURATION_250_MS`.
 
         If you wish to set them yourself rather than using the defaults,
         you must use keyword arguments::
