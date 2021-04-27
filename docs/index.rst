@@ -23,10 +23,12 @@ Table of Contents
 .. toctree::
     :caption: Tutorials
 
+    Adafruit MSA301 Triple Axis Accelerometer Learning Guide <https://learn.adafruit.com/msa301-triple-axis-accelerometer>
+
 .. toctree::
     :caption: Related Products
 
-    Adafruit MSA301 Breakout <https://www.adafruit.com/product/4344>
+    Adafruit MSA301 Triple Axis Accelerometer <https://www.adafruit.com/product/4344>
 
 .. toctree::
     :caption: Other Links
