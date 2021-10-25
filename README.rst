@@ -68,6 +68,11 @@ Usage Example
         print("%f %f %f"%msa.acceleration)
         time.sleep(0.125)
 
+Documentation
+=============
+
+API documentation for this library can be found on `Read the Docs <https://circuitpython.readthedocs.io/projects/msa301/en/latest/>`_.
+
 Contributing
 ============
 
