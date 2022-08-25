@@ -11,7 +11,7 @@ requires = [
 
 [project]
 name = "adafruit-circuitpython-msa301"
-description = "CircuitPython library for the MSA301 Accelerometer"
+description = "CircuitPython library for the MSA301/MSA311 Accelerometers"
 version = "0.0.0+auto.0"
 readme = "README.rst"
 authors = [
@@ -24,6 +24,7 @@ keywords = [
     "circuitpython",
     "micropython",
     "msa301",
+    "msa311",
     "accelerometer",
     "msa",
 ]
@@ -39,7 +40,7 @@ classifiers = [
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools]
-py-modules = ["adafruit_msa301"]
+py-modules = ["adafruit_msa3xx"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}

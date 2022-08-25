@@ -17,7 +17,7 @@ Introduction
     :target: https://github.com/psf/black
     :alt: Code Style: Black
 
-CircuitPython library for the MSA301 Accelerometer
+CircuitPython library for the MSA301/MSA311 Accelerometers
 
 
 Dependencies
@@ -63,10 +63,10 @@ Usage Example
 
     import time
     import board
-    import adafruit_msa301
+    from adafruit_msa3xx import MSA301
 
     i2c = board.I2C()  # uses board.SCL and board.SDA
-    msa = adafruit_msa301.MSA301(i2c)
+    msa = MSA301(i2c)
 
     while True:
         print("%f %f %f"%msa.acceleration)

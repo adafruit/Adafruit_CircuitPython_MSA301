@@ -3,10 +3,10 @@
 
 import time
 import board
-from adafruit_msa3xx import MSA301
+from adafruit_msa3xx import MSA311
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
-msa = MSA301(i2c)
+msa = MSA311(i2c)
 
 while True:
     print("%f %f %f" % msa.acceleration)

@@ -29,6 +29,7 @@ Table of Contents
     :caption: Related Products
 
     Adafruit MSA301 Triple Axis Accelerometer <https://www.adafruit.com/product/4344>
+    Adafruit MSA311 Triple Axis Accelerometer <https://www.adafruit.com/product/5309>
 
 .. toctree::
     :caption: Other Links
