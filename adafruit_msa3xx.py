@@ -32,7 +32,7 @@ Implementation Notes
 """
 
 __version__ = "0.0.0+auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython.git"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MSA301.git"
 
 from micropython import const
 from adafruit_register.i2c_struct import Struct, ROUnaryStruct
