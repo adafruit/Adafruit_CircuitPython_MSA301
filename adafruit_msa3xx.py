@@ -204,8 +204,7 @@ class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-a
 
 
 class MSA3XX:  # pylint: disable=too-many-instance-attributes
-    """Base driver class for the MSA301/311 Accelerometers.
-    """
+    """Base driver class for the MSA301/311 Accelerometers."""
 
     _part_id = ROUnaryStruct(_REG_PARTID, "<B")
 
@@ -235,7 +234,7 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
     range = RWBits(2, _REG_RESRANGE, 0)
     resolution = RWBits(2, _REG_RESRANGE, 2)
 
-    def _initialize(self):
+    def __init__(self):
         self._disable_x = self._disable_y = self._disable_z = False
         self.power_mode = Mode.NORMAL
         self.data_rate = DataRate.RATE_500_HZ
@@ -340,6 +339,7 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
 
         return False
 
+
 class MSA301(MSA3XX):
     """Driver for the MSA301 Accelerometer.
 
@@ -352,7 +352,8 @@ class MSA301(MSA3XX):
         if self._part_id != 0x13:
             raise AttributeError("Cannot find a MSA301")
 
-        self._initialize()
+        super().__init__()
+
 
 class MSA311(MSA3XX):
     """Driver for the MSA311 Accelerometer.
@@ -366,4 +367,4 @@ class MSA311(MSA3XX):
         if self._part_id != 0x13:
             raise AttributeError("Cannot find a MSA311")
 
-        self._initialize()
+        super().__init__()
