@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 """
-`MSA301`
+`adafruit_msa3xx`
 ================================================================================
 
-CircuitPython library for the MSA301 Accelerometer
+CircuitPython library for the MSA301 and MSA311 Accelerometers
 
 
 * Author(s): Bryan Siepert
@@ -18,6 +18,8 @@ Implementation Notes
 
 * Adafruit `MSA301 Triple Axis Accelerometer
   <https://www.adafruit.com/product/4344>`_
+* Adafruit `MSA311 Triple Axis Accelerometer
+  <https://www.adafruit.com/product/5309>`_
 
 **Software and Dependencies:**
 
@@ -39,25 +41,26 @@ from adafruit_register.i2c_bits import RWBits
 import adafruit_bus_device.i2c_device as i2cdevice
 
 _MSA301_I2CADDR_DEFAULT = const(0x26)
+_MSA311_I2CADDR_DEFAULT = const(0x62)
 
-_MSA301_REG_PARTID = const(0x01)
-_MSA301_REG_OUT_X_L = const(0x02)
-_MSA301_REG_OUT_X_H = const(0x03)
-_MSA301_REG_OUT_Y_L = const(0x04)
-_MSA301_REG_OUT_Y_H = const(0x05)
-_MSA301_REG_OUT_Z_L = const(0x06)
-_MSA301_REG_OUT_Z_H = const(0x07)
-_MSA301_REG_MOTIONINT = const(0x09)
-_MSA301_REG_DATAINT = const(0x0A)
-_MSA301_REG_RESRANGE = const(0x0F)
-_MSA301_REG_ODR = const(0x10)
-_MSA301_REG_POWERMODE = const(0x11)
-_MSA301_REG_INTSET0 = const(0x16)
-_MSA301_REG_INTSET1 = const(0x17)
-_MSA301_REG_INTMAP0 = const(0x19)
-_MSA301_REG_INTMAP1 = const(0x1A)
-_MSA301_REG_TAPDUR = const(0x2A)
-_MSA301_REG_TAPTH = const(0x2B)
+_REG_PARTID = const(0x01)
+_REG_OUT_X_L = const(0x02)
+_REG_OUT_X_H = const(0x03)
+_REG_OUT_Y_L = const(0x04)
+_REG_OUT_Y_H = const(0x05)
+_REG_OUT_Z_L = const(0x06)
+_REG_OUT_Z_H = const(0x07)
+_REG_MOTIONINT = const(0x09)
+_REG_DATAINT = const(0x0A)
+_REG_RESRANGE = const(0x0F)
+_REG_ODR = const(0x10)
+_REG_POWERMODE = const(0x11)
+_REG_INTSET0 = const(0x16)
+_REG_INTSET1 = const(0x17)
+_REG_INTMAP0 = const(0x19)
+_REG_INTMAP1 = const(0x1A)
+_REG_TAPDUR = const(0x2A)
+_REG_TAPTH = const(0x2B)
 
 
 _STANDARD_GRAVITY = 9.806
@@ -200,45 +203,38 @@ class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-a
     DURATION_700_MS = 0b111  # < 50 millis700 millis
 
 
-class MSA301:  # pylint: disable=too-many-instance-attributes
-    """Driver for the MSA301 Accelerometer.
+class MSA3XX:  # pylint: disable=too-many-instance-attributes
+    """Base driver class for the MSA301/311 Accelerometers."""
 
-    :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
+    _part_id = ROUnaryStruct(_REG_PARTID, "<B")
 
+    _disable_x = RWBit(_REG_ODR, 7)
+    _disable_y = RWBit(_REG_ODR, 6)
+    _disable_z = RWBit(_REG_ODR, 5)
 
-    **Quickstart: Importing and using the device**
+    # _xyz_raw = ROBits(48, _REG_OUT_X_L, 0, 6)
+    _xyz_raw = Struct(_REG_OUT_X_L, "<hhh")
 
-        Here is an example of using the :class:`MSA301` class.
-        First you will need to import the libraries to use the sensor
+    # tap INT enable and status
+    _single_tap_int_en = RWBit(_REG_INTSET0, 5)
+    _double_tap_int_en = RWBit(_REG_INTSET0, 4)
+    _motion_int_status = ROUnaryStruct(_REG_MOTIONINT, "B")
 
-        .. code-block:: python
+    # tap interrupt knobs
+    _tap_quiet = RWBit(_REG_TAPDUR, 7)
+    _tap_shock = RWBit(_REG_TAPDUR, 6)
+    _tap_duration = RWBits(3, _REG_TAPDUR, 0)
+    _tap_threshold = RWBits(5, _REG_TAPTH, 0)
+    reg_tapdur = ROUnaryStruct(_REG_TAPDUR, "B")
 
-            import board
-            import adafruit_msa301
+    # general settings knobs
+    power_mode = RWBits(2, _REG_POWERMODE, 6)
+    bandwidth = RWBits(4, _REG_POWERMODE, 1)
+    data_rate = RWBits(4, _REG_ODR, 0)
+    range = RWBits(2, _REG_RESRANGE, 0)
+    resolution = RWBits(2, _REG_RESRANGE, 2)
 
-        Once this is done you can define your `board.I2C` object and define your sensor object
-
-        .. code-block:: python
-
-            i2c = board.I2C()  # uses board.SCL and board.SDA
-            msa = adafruit_msa301.MSA301(i2c)
-
-        Now you have access to the :attr:`acceleration` attribute
-
-        .. code-block:: python
-
-            acc_x, acc_y, acc_z = msa.acceleration
-
-    """
-
-    _part_id = ROUnaryStruct(_MSA301_REG_PARTID, "<B")
-
-    def __init__(self, i2c_bus):
-        self.i2c_device = i2cdevice.I2CDevice(i2c_bus, _MSA301_I2CADDR_DEFAULT)
-
-        if self._part_id != 0x13:
-            raise AttributeError("Cannot find a MSA301")
-
+    def __init__(self):
         self._disable_x = self._disable_y = self._disable_z = False
         self.power_mode = Mode.NORMAL
         self.data_rate = DataRate.RATE_500_HZ
@@ -246,32 +242,6 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
         self.range = Range.RANGE_4_G
         self.resolution = Resolution.RESOLUTION_14_BIT
         self._tap_count = 0
-
-    _disable_x = RWBit(_MSA301_REG_ODR, 7)
-    _disable_y = RWBit(_MSA301_REG_ODR, 6)
-    _disable_z = RWBit(_MSA301_REG_ODR, 5)
-
-    # _xyz_raw = ROBits(48, _MSA301_REG_OUT_X_L, 0, 6)
-    _xyz_raw = Struct(_MSA301_REG_OUT_X_L, "<hhh")
-
-    # tap INT enable and status
-    _single_tap_int_en = RWBit(_MSA301_REG_INTSET0, 5)
-    _double_tap_int_en = RWBit(_MSA301_REG_INTSET0, 4)
-    _motion_int_status = ROUnaryStruct(_MSA301_REG_MOTIONINT, "B")
-
-    # tap interrupt knobs
-    _tap_quiet = RWBit(_MSA301_REG_TAPDUR, 7)
-    _tap_shock = RWBit(_MSA301_REG_TAPDUR, 6)
-    _tap_duration = RWBits(3, _MSA301_REG_TAPDUR, 0)
-    _tap_threshold = RWBits(5, _MSA301_REG_TAPTH, 0)
-    reg_tapdur = ROUnaryStruct(_MSA301_REG_TAPDUR, "B")
-
-    # general settings knobs
-    power_mode = RWBits(2, _MSA301_REG_POWERMODE, 6)
-    bandwidth = RWBits(4, _MSA301_REG_POWERMODE, 1)
-    data_rate = RWBits(4, _MSA301_REG_ODR, 0)
-    range = RWBits(2, _MSA301_REG_RESRANGE, 0)
-    resolution = RWBits(2, _MSA301_REG_RESRANGE, 2)
 
     @property
     def acceleration(self):
@@ -368,3 +338,33 @@ class MSA301:  # pylint: disable=too-many-instance-attributes
             return True
 
         return False
+
+
+class MSA301(MSA3XX):
+    """Driver for the MSA301 Accelerometer.
+
+    :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
+    """
+
+    def __init__(self, i2c_bus):
+        self.i2c_device = i2cdevice.I2CDevice(i2c_bus, _MSA301_I2CADDR_DEFAULT)
+
+        if self._part_id != 0x13:
+            raise AttributeError("Cannot find a MSA301")
+
+        super().__init__()
+
+
+class MSA311(MSA3XX):
+    """Driver for the MSA311 Accelerometer.
+
+    :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
+    """
+
+    def __init__(self, i2c_bus):
+        self.i2c_device = i2cdevice.I2CDevice(i2c_bus, _MSA311_I2CADDR_DEFAULT)
+
+        if self._part_id != 0x13:
+            raise AttributeError("Cannot find a MSA311")
+
+        super().__init__()
