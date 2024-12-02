@@ -40,6 +40,13 @@ from adafruit_register.i2c_bit import RWBit
 from adafruit_register.i2c_bits import RWBits
 import adafruit_bus_device.i2c_device as i2cdevice
 
+
+try:
+    from typing import Tuple
+    from busio import I2C
+except ImportError:
+    pass
+
 _MSA301_I2CADDR_DEFAULT = const(0x26)
 _MSA311_I2CADDR_DEFAULT = const(0x62)
 
@@ -244,7 +251,7 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
         self._tap_count = 0
 
     @property
-    def acceleration(self):
+    def acceleration(self) -> Tuple[float, float, float]:
         """The x, y, z acceleration values returned in a
         3-tuple and are in :math:`m / s ^ 2`"""
         # read the 6 bytes of acceleration data
@@ -268,12 +275,12 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
     def enable_tap_detection(
         self,
         *,
-        tap_count=1,
-        threshold=25,
-        long_initial_window=True,
-        long_quiet_window=True,
-        double_tap_window=TapDuration.DURATION_250_MS
-    ):
+        tap_count: int = 1,
+        threshold: int = 25,
+        long_initial_window: bool = True,
+        long_quiet_window: bool = True,
+        double_tap_window: int = TapDuration.DURATION_250_MS
+    ) -> None:
         """
         Enables tap detection with configurable parameters.
 
@@ -321,7 +328,7 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
             raise ValueError("tap must be 1 for single tap, or 2 for double tap")
 
     @property
-    def tapped(self):
+    def tapped(self) -> bool:
         """`True` if a single or double tap was detected, depending on the value of the\
            ``tap_count`` argument passed to ``enable_tap_detection``"""
         if self._tap_count == 0:
@@ -346,7 +353,7 @@ class MSA301(MSA3XX):
     :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
     """
 
-    def __init__(self, i2c_bus):
+    def __init__(self, i2c_bus: I2C):
         self.i2c_device = i2cdevice.I2CDevice(i2c_bus, _MSA301_I2CADDR_DEFAULT)
 
         if self._part_id != 0x13:
@@ -361,7 +368,7 @@ class MSA311(MSA3XX):
     :param ~busio.I2C i2c_bus: The I2C bus the MSA is connected to.
     """
 
-    def __init__(self, i2c_bus):
+    def __init__(self, i2c_bus: I2C):
         self.i2c_device = i2cdevice.I2CDevice(i2c_bus, _MSA311_I2CADDR_DEFAULT)
 
         if self._part_id != 0x13:
