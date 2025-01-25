@@ -15,3 +15,12 @@ Check out the tap capability with this example.
 .. literalinclude:: ../examples/msa301_tap_example.py
     :caption: examples/msa301_tap_example.py
     :linenos:
+
+DisplayIO Simpletest
+---------------------
+
+This is a simple test for boards with built-in display.
+
+.. literalinclude:: ../examples/msa301_displayio_simpletest.py
+    :caption: examples/msa301_displayio_simpletest.py
+    :linenos:
