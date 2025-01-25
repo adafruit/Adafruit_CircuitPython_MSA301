@@ -38,8 +38,6 @@ board.DISPLAY.root_group = main_group
 while True:
     # update the text of the label(s) to show the sensor readings
     x, y, z = msa.acceleration
-    display_output_label.text = (
-        f"X:{x:.2f} m/s^2\nY:{y:.2f} m/s^2\nZ:{z:.2f} m/s^2"
-    )
+    display_output_label.text = f"X:{x:.2f} m/s^2\nY:{y:.2f} m/s^2\nZ:{z:.2f} m/s^2"
     # wait for a bit
     time.sleep(0.5)
