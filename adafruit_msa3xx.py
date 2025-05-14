@@ -34,15 +34,15 @@ Implementation Notes
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MSA301.git"
 
-from micropython import const
-from adafruit_register.i2c_struct import Struct, ROUnaryStruct
+import adafruit_bus_device.i2c_device as i2cdevice
 from adafruit_register.i2c_bit import RWBit
 from adafruit_register.i2c_bits import RWBits
-import adafruit_bus_device.i2c_device as i2cdevice
-
+from adafruit_register.i2c_struct import ROUnaryStruct, Struct
+from micropython import const
 
 try:
     from typing import Tuple
+
     from busio import I2C
 except ImportError:
     pass
@@ -73,7 +73,7 @@ _REG_TAPTH = const(0x2B)
 _STANDARD_GRAVITY = 9.806
 
 
-class Mode:  # pylint: disable=too-few-public-methods
+class Mode:
     """An enum-like class representing the different modes that the MSA301 can
     use. The values can be referenced like :attr:`Mode.NORMAL` or :attr:`Mode.SUSPEND`
     Possible values are
@@ -84,13 +84,12 @@ class Mode:  # pylint: disable=too-few-public-methods
 
     """
 
-    # pylint: disable=invalid-name
     NORMAL = 0b00
     LOWPOWER = 0b01
     SUSPEND = 0b010
 
 
-class DataRate:  # pylint: disable=too-few-public-methods
+class DataRate:
     """An enum-like class representing the different
     data rates that the MSA301 can
     use. The values can be referenced like
@@ -124,7 +123,7 @@ class DataRate:  # pylint: disable=too-few-public-methods
     RATE_1000_HZ = 0b1010  # 1000 Hz
 
 
-class BandWidth:  # pylint: disable=too-few-public-methods
+class BandWidth:
     """An enum-like class representing the different
     bandwidths that the MSA301 can
     use. The values can be referenced
@@ -156,7 +155,7 @@ class BandWidth:  # pylint: disable=too-few-public-methods
     WIDTH_500_HZ = 0b1010  # 500 Hz
 
 
-class Range:  # pylint: disable=too-few-public-methods
+class Range:
     """An enum-like class representing the different
     acceleration measurement ranges that the
     MSA301 can use. The values can be referenced like
@@ -176,7 +175,7 @@ class Range:  # pylint: disable=too-few-public-methods
     RANGE_16_G = 0b11  # +/- 16g
 
 
-class Resolution:  # pylint: disable=too-few-public-methods
+class Resolution:
     """An enum-like class representing the different
     measurement ranges that the MSA301 can
     use. The values can be referenced like
@@ -196,7 +195,7 @@ class Resolution:  # pylint: disable=too-few-public-methods
     RESOLUTION_8_BIT = 0b11
 
 
-class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class TapDuration:
     """An enum-like class representing the options for the "double_tap_window" parameter of
     `enable_tap_detection`"""
 
@@ -210,7 +209,7 @@ class TapDuration:  # pylint: disable=too-few-public-methods,too-many-instance-a
     DURATION_700_MS = 0b111  # < 50 millis700 millis
 
 
-class MSA3XX:  # pylint: disable=too-many-instance-attributes
+class MSA3XX:
     """Base driver class for the MSA301/311 Accelerometers."""
 
     _part_id = ROUnaryStruct(_REG_PARTID, "<B")
@@ -268,7 +267,7 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
             scale = 4096.0
 
         # shift down to the actual 14 bits and scale based on the range
-        x, y, z = [((i >> 2) / scale) * _STANDARD_GRAVITY for i in self._xyz_raw]
+        x, y, z = (((i >> 2) / scale) * _STANDARD_GRAVITY for i in self._xyz_raw)
 
         return (x, y, z)
 
@@ -279,7 +278,7 @@ class MSA3XX:  # pylint: disable=too-many-instance-attributes
         threshold: int = 25,
         long_initial_window: bool = True,
         long_quiet_window: bool = True,
-        double_tap_window: int = TapDuration.DURATION_250_MS
+        double_tap_window: int = TapDuration.DURATION_250_MS,
     ) -> None:
         """
         Enables tap detection with configurable parameters.
